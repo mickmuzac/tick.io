@@ -5,7 +5,7 @@
 	"description": "Realtime tick-based synchronization module",
 	"dependencies": {
 		"debug": "*",
-		"socket.io": "0.9.*"
+		"socket.io": "0.9"
     },
 	"author":"Mick Muzac <mmuzac23@gmail.com>",
 	"licenses" : [
