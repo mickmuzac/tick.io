@@ -1,26 +1,25 @@
 var $tickjs = new function(){
 
 	var self = this;
-	var master = false;
-	var ticks = 0;
-	var hours = 0;
-	var socket;
-	var timeoutHandle = 0;
-	var lastTime = 0;
-	var keepLooping;
-	var totalTicks = 0;
-	var dataBuffer = {};
+	
+	var master = false,
+	socket,
+	keepLooping,
+	dataBuffer = {},
+	isConnected = false,
+	timeoutHandle = 0;
 	
 	//Number of milliseconds per tick
-	self.tickInterval = 10; 
+	self.tickRate = 10; 
 	self.data = {};
 	
 	self.connect = function(addr){
 	
 		socket = io.connect(addr);
 		socket.on('confirm', function (data) {
+			isConnected = true;
 			console.log(data);
-			socket.emit('data', { tick:totalTicks, data:self.data });
+			socket.emit('data', { tick:self.time.ticks, data:self.data });
 		});
 		
 		return self;
@@ -28,10 +27,10 @@ var $tickjs = new function(){
 
 	self.sync = function(){
 		
-		totalTicks++;
-		console.log("sync", Date.now()-lastTime);
-		lastTime = Date.now();
-		socket.emit('my other event', {tick:totalTicks, data:self.data});
+		self.time.ticks++;
+		console.log("sync", Date.now()-self.time.lastTime);
+		self.time.lastTime = Date.now();
+		socket.emit('my other event', {tick:self.time.ticks, data:self.data});
 		
 		console.log(socket);
 		data = dataBuffer;
@@ -56,11 +55,11 @@ var $tickjs = new function(){
 		window.clearTimeout(timeoutHandle);
 	};
 	
-	self.every = function(interval){
+	self.every = function(rate){
 		
-		lastTime = Date.now();
+		self.time.lastTime = Date.now();
 		keepLooping = true;
-		self.tickInterval = interval;
+		self.tickRate = rate;
 
 		(function loop(){
 			timeoutHandle = setTimeout(function(){
@@ -70,10 +69,28 @@ var $tickjs = new function(){
 				loop();
 			}
 
-		  }, interval);
+		  }, rate);
 		})();
 		
 		return self;
+	};
+	
+	self.time = {
+		ticks: 0,
+		hours: 0,
+		lastTime: 0,
+		lastRead: 0,
+		getTickDiff: function(){
+			var temp = this.ticks - this.lastRead;
+			this.lastRead = this.ticks;
+			return temp;
+		},		
+		getTimeDiff: function(){
+			var temp = this.ticks - this.lastRead;
+			this.lastRead = this.ticks;
+			return (temp * self.tickRate) * .001;
+		}		
+	
 	};
 	
 	if (!Date.now) {  
