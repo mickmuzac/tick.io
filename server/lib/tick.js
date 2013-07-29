@@ -1,15 +1,23 @@
-var tick = function(io){
+var listen = function(io){
 
 	var self = this;
-	
+	var socketPool = [];
 	
 	io.sockets.on('connection', function (socket) {
-		socket.emit('news', { hello: 'world' });
-		socket.on('my other event', function (data) {
-			console.log(data);
+		console.log("New connection", socket.id);
+		socketPool.push(socket);
+		socket.broadcast.emit('new', socket.id);
+		
+		socket.on('data', function (data) {
+			//socket.
+			console.log(socket.id, data);
 		});
+		
+		socket.on('disconnect', function(){
+			console.log(socket.id, 'disconnected');
+			socket.broadcast.emit('gone', socket.id);
+		})
 	});
-
 }
 
-exports.tick = tick;
+exports.listen = listen;

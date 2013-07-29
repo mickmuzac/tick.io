@@ -1,7 +1,6 @@
 var $tickjs = new function(){
 
 	var self = this;
-	
 	var master = false,
 	socket,
 	keepLooping,
@@ -22,6 +21,13 @@ var $tickjs = new function(){
 			socket.emit('data', { tick:self.time.ticks, data:self.data });
 		});
 		
+		socket.on('new', function(data){
+			console.log('new', data);
+		});		
+		socket.on('gone', function(data){
+			console.log('disconnected', data);
+		});
+		
 		return self;
 	}
 
@@ -30,7 +36,9 @@ var $tickjs = new function(){
 		self.time.ticks++;
 		console.log("sync", Date.now()-self.time.lastTime);
 		self.time.lastTime = Date.now();
-		socket.emit('my other event', {tick:self.time.ticks, data:self.data});
+		
+		//Send data back up to the server
+		socket.emit('data', {tick:self.time.ticks, data:self.data});
 		
 		console.log(socket);
 		data = dataBuffer;
