@@ -3,7 +3,7 @@ var app = require('http').createServer(handler),
     fs = require('fs'),
 	tick = require('./lib/tick.js');
 
-app.listen(3000);
+app.listen(3001);
 
 function handler (req, res) {
 	console.log(req.url);

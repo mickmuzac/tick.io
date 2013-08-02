@@ -12,7 +12,7 @@ var $tickjs = new function(){
 	desiredRate = 100,
 	startCallback = function(){};
 	
-	//Number of milliseconds per tick
+	//Number of milliseconds between ticks
 	self.tickRate = 10; 
 	self.data = {};
 	
@@ -26,15 +26,16 @@ var $tickjs = new function(){
 		});
 		
 		socket.on('new', function(data){
-			console.log('new', data);
-			totalConnected++;
-			if(desiredConnections >= totalConnected){
+			totalConnected = data.pool.length;
+			if(desiredConnections <= totalConnected){
 				self.start(0, startCallback);
 			}
+			
+			console.log('new', data, totalConnected);
 		});		
 		socket.on('gone', function(data){
-			console.log('disconnected', data);
-			totalConnected = totalConnected == 0 ? totalConnected : totalConnected - 1;
+			totalConnected = data.pool.length;
+			console.log('disconnected', data, totalConnected);
 		});
 		
 		return self;
@@ -51,14 +52,6 @@ var $tickjs = new function(){
 		
 		console.log(socket);
 		data = dataBuffer;
-	};
-
-	self.setData = function(data){
-		self.data = data;
-	};
-	
-	self.getData = function(){
-		return dataBuffer;
 	};
 	
 	/*
@@ -121,6 +114,10 @@ var $tickjs = new function(){
 		return self;
 	};
 	
+	/*
+		Time object
+	*/
+	
 	self.time = {
 		ticks: 0,
 		hours: 0,
@@ -138,6 +135,26 @@ var $tickjs = new function(){
 		}		
 	
 	};
+	
+	/*
+		Getters and Setters
+	*/
+	
+	self.setData = function(data){
+		self.data = data;
+	};
+	
+	self.getData = function(){
+		return dataBuffer;
+	};
+	
+	self.getNumConn = function(){
+		return totalConnections;
+	};
+	
+	/*
+		Date fix
+	*/
 	
 	if (!Date.now) {  
 		Date.now = function() {  
