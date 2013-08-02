@@ -6,7 +6,11 @@ var $tickjs = new function(){
 	keepLooping,
 	dataBuffer = {},
 	isConnected = false,
-	timeoutHandle = 0;
+	timeoutHandle = 0,
+	totalConnected = 0,
+	desiredConnections = 0,
+	desiredRate = 100,
+	startCallback = function(){};
 	
 	//Number of milliseconds per tick
 	self.tickRate = 10; 
@@ -23,13 +27,18 @@ var $tickjs = new function(){
 		
 		socket.on('new', function(data){
 			console.log('new', data);
+			totalConnected++;
+			if(desiredConnections >= totalConnected){
+				self.start(0, startCallback);
+			}
 		});		
 		socket.on('gone', function(data){
 			console.log('disconnected', data);
+			totalConnected = totalConnected == 0 ? totalConnected : totalConnected - 1;
 		});
 		
 		return self;
-	}
+	};
 
 	self.sync = function(){
 		
@@ -52,10 +61,39 @@ var $tickjs = new function(){
 		return dataBuffer;
 	};
 	
-	
-	self.start = function(server){
-	
+	/*
+		arg1 is optional and must be desired number of connections or a callback function if it exists
+		arg2 is optional and must be either the desired sync rate or a callback function if it exists
+		arg3 is optional and must be a callback function if it exists
+	*/
+	self.start = function(arg1, arg2, arg3){
 		
+		//If arg1 is a number, it is the desired number of connections
+		if(!isNaN(arg1)){
+			desiredConnections = arg1;
+		}
+		
+		//If arg2 is a number it is the desiredRate and arg3 if it exists must be a callback
+		if(!isNaN(arg2)){
+			desiredRate = arg2;
+			startCallback = arg3 ? arg3 : startCallback;
+		}
+		
+		//If arg2 exists, but is not a number, it must be a callback. There is no arg3.
+		else if(arg2 && isNaN(arg2)){
+			startCallback = arg2;
+		}
+
+		//A falsy (0, undefined, etc.) or functional arg1 means start immediately. This case is last to allow the other args to be used.
+		//i.e: tick.start(), tick.start(callback), tick.start(false, callback), or tick.start(false, 100, callback)
+		if(!arg1 || (arg1 && isNaN(arg1))){
+			startCallback = arg1 ? arg1 : startCallback;
+			self.every(desiredRate);
+			startCallback(self);
+		}
+		
+		console.log("Waiting for connections");
+		return self;
 	};
 	
 	self.stop = function(){
@@ -67,7 +105,7 @@ var $tickjs = new function(){
 		
 		self.time.lastTime = Date.now();
 		keepLooping = true;
-		self.tickRate = rate;
+		self.tickRate = rate ? rate : 100;
 
 		(function loop(){
 			timeoutHandle = setTimeout(function(){

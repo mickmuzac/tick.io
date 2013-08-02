@@ -5,8 +5,10 @@ var listen = function(io){
 	
 	io.sockets.on('connection', function (socket) {
 		console.log("New connection", socket.id);
-		socketPool.push(socket);
-		socket.broadcast.emit('new', socket.id);
+		socketPool.push(socket.id);
+		
+		//DO NOT SEND A POOL LIST CONTAINING OWN ID
+		socket.broadcast.emit('new', {pool:socketPool, id: socket.id});
 		
 		socket.on('data', function (data) {
 			//socket.
@@ -15,7 +17,10 @@ var listen = function(io){
 		
 		socket.on('disconnect', function(){
 			console.log(socket.id, 'disconnected');
-			socket.broadcast.emit('gone', socket.id);
+			
+			socketPool.splice(socketPool.indexOf(socket.id), 1);
+			socket.broadcast.emit('gone', {pool:socketPool, id: socket.id});
+			
 		})
 	});
 }
