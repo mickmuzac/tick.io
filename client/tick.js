@@ -2,8 +2,9 @@ var $tickjs = new function(){
 
 	var self = this;
 	var master = false,
-	socket,
-	keepLooping,
+	socket = {},
+	sessionPool = [],
+	keepLooping = true,
 	dataBuffer = {},
 	isConnected = false,
 	timeoutHandle = 0,
@@ -26,14 +27,17 @@ var $tickjs = new function(){
 		});
 		
 		socket.on('new', function(data){
+			
+			remove(data.pool, socket.socket.sessionid);
 			totalConnected = data.pool.length;
 			if(desiredConnections <= totalConnected){
 				self.start(0, startCallback);
 			}
 			
-			console.log('new', data, totalConnected);
+			console.log('new', data, totalConnected, socket.socket.sessionid);
 		});		
 		socket.on('gone', function(data){
+			remove(data.pool, socket.socket.sessionid);
 			totalConnected = data.pool.length;
 			console.log('disconnected', data, totalConnected);
 		});
@@ -152,9 +156,17 @@ var $tickjs = new function(){
 		return totalConnections;
 	};
 	
+	self.getIdPool = function(){
+		return;
+	};
+	
 	/*
-		Date fix
+		Polyfills, fixes, and convenience functions
 	*/
+	
+	var remove = function(arr, element){
+		arr.splice(arr.indexOf(element), 1);
+	};
 	
 	if (!Date.now) {  
 		Date.now = function() {  
