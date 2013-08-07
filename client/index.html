@@ -3,15 +3,38 @@
 <head>
 	<script type="text/javascript" src="/socket.io/socket.io.js"></script>
 	<script type="text/javascript" src="/tick.js"></script>
+	<script type="text/javascript" src="http://code.jquery.com/jquery-1.10.2.js"></script>
 	
 	<script>
-		tick.connect('localhost').start(1, 500);
+		var sync = function(e, data){
+			
+			switch(e){	
+				case "connect":
+					tick.setData($('.input').val());
+					break;
+				
+				
+				case "incoming":
+				
+					$('.first').text(data.data);
+					console.log("incoming", data);
+					break;
+				
+				case "tick":
+				
+					tick.setData($('.input').val());
+					//console.log("tick", data);
+					break;
+			}
+		};
+	
+		tick.connect('localhost', sync).start(1, 100);
 	</script>
 </head>
 <body>
 	
-	
-	Testing!!
+	<textarea class="input"></textarea>
+	<p class="first">Initial paragraph value</p>
 	
 </body>
 </html>

@@ -10,20 +10,21 @@ var listen = function(io){
 		socketMap[socket.id] = {socket:socket, latency:0};
 		
 		//This sends entire socket pool. Own ID is filtered out on front end.
-		socket.broadcast.emit('new', {pool:Object.keys(socketMap), id: socket.id});
-		socket.emit('confirm', {pool:Object.keys(socketMap), id: socket.id});
+		socket.broadcast.emit('new', {pool:Object.keys(socketMap), origin: socket.id});
+		socket.emit('confirm', {pool:Object.keys(socketMap), origin: socket.id});
 		
 		socket.on('data', function (data) {
-			
 			console.log(socket.id, data, (Date.now()-oldDate));
 			oldDate = Date.now(); 
+			
+			socket.broadcast.emit('data', {pool:Object.keys(socketMap), origin: socket.id, tick: data.tick, data:data.client_data});
 		});
 		
 		socket.on('disconnect', function(){
 			console.log(socket.id, 'disconnected');
 
 			delete socketMap[socket.id];
-			socket.broadcast.emit('gone', {pool:Object.keys(socketMap), id: socket.id}); 
+			socket.broadcast.emit('gone', {pool:Object.keys(socketMap), origin: socket.id}); 
 			
 			//console.log(socketMap);
 		})

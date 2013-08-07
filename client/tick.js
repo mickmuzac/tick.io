@@ -11,38 +11,54 @@ var $tickjs = new function(){
 	totalConnected = 0,
 	desiredConnections = 0,
 	desiredRate = 100,
-	startCallback = function(){};
+	userEventHandler = function(){};
 	
 	//Number of milliseconds between ticks
 	self.tickRate = 10; 
 	self.data = {};
 	
-	self.connect = function(addr){
+	self.connect = function(addr, cb){
 	
 		socket = io.connect(addr);
+		userEventHandler = cb ? cb : userEventHandler;
+		
+		//This socket's connection to server is complete
 		socket.on('confirm', function (data) {
 			isConnected = true;
 			console.log(data);
+			
+			remove(data.pool, socket.socket.sessionid);
 			totalConnected = data.pool.length;
 			if(desiredConnections <= totalConnected){
-				self.start(0, startCallback);
+				self.start();
 			}
 		});
 		
+		//A socket has connected to server
 		socket.on('new', function(data){
 			
 			remove(data.pool, socket.socket.sessionid);
 			totalConnected = data.pool.length;
 			if(desiredConnections <= totalConnected){
-				self.start(0, startCallback);
+				self.start();
 			}
 			
-			console.log('new', data, totalConnected, socket.socket.sessionid);
+			userEventHandler('connect', data);
 		});		
+		
+		//A socket has disconnected from server
 		socket.on('gone', function(data){
 			remove(data.pool, socket.socket.sessionid);
 			totalConnected = data.pool.length;
-			console.log('disconnected', data, totalConnected);
+			
+			userEventHandler('disconnect', data);
+		});	
+		
+		//Recieve data from other clients via server
+		socket.on('data', function(data){
+			//console.log('data', data);
+			remove(data.pool, socket.socket.sessionid);
+			userEventHandler('incoming', data);
 		});
 		
 		return self;
@@ -57,22 +73,21 @@ var $tickjs = new function(){
 		}
 		
 		self.time.ticks++;
-		console.log("sync", Date.now()-self.time.lastTime);
+		//console.log("sync", Date.now()-self.time.lastTime);
 		self.time.lastTime = Date.now();
 		
 		//Send data back up to the server
-		socket.emit('data', {tick:self.time.ticks, data:self.data});
+		socket.emit('data', {tick:self.time.ticks, client_data:self.data});
+		dataBuffer = self.data;
 		
-		console.log(socket);
-		data = dataBuffer;
+		userEventHandler('tick');
 	};
 	
 	/*
-		arg1 is optional and must be desired number of connections or a callback function if it exists
-		arg2 is optional and must be either the desired sync rate or a callback function if it exists
-		arg3 is optional and must be a callback function if it exists
+		arg1 is optional and must be desired number of connections if it exists
+		arg2 is optional and must be either the desired sync rate if it exists
 	*/
-	self.start = function(arg1, arg2, arg3){
+	self.start = function(arg1, arg2){
 		
 		//If arg1 is a number, it is the desired number of connections
 		if(!isNaN(arg1)){
@@ -82,20 +97,15 @@ var $tickjs = new function(){
 		//If arg2 is a number it is the desiredRate and arg3 if it exists must be a callback
 		if(!isNaN(arg2)){
 			desiredRate = arg2;
-			startCallback = arg3 ? arg3 : startCallback;
-		}
-		
-		//If arg2 exists, but is not a number, it must be a callback. There is no arg3.
-		else if(arg2 && isNaN(arg2)){
-			startCallback = arg2;
 		}
 
 		//A falsy (0, undefined, etc.) or functional arg1 means start immediately. This case is last to allow the other args to be used.
-		//i.e: tick.start(), tick.start(callback), tick.start(false, callback), or tick.start(false, 100, callback)
+		//i.e: tick.start() or tick.start(false, 100)
 		if(!arg1 || (arg1 && isNaN(arg1))){
-			startCallback = arg1 ? arg1 : startCallback;
+			userEventHandler('start');
 			self.every(desiredRate);
-			startCallback(self);
+			
+			return self;
 		}
 		
 		console.log("Waiting for connections");
