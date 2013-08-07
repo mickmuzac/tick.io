@@ -6,13 +6,17 @@ var listen = function(io){
 	io.sockets.on('connection', function (socket) {
 		
 		console.log("New connection", socket.id);
-		socketMap[socket.id] = socket;
+		var oldDate = Date.now();
+		socketMap[socket.id] = {socket:socket, latency:0};
 		
-		//DO NOT SEND A POOL LIST CONTAINING OWN ID
+		//This sends entire socket pool. Own ID is filtered out on front end.
 		socket.broadcast.emit('new', {pool:Object.keys(socketMap), id: socket.id});
+		socket.emit('confirm', {pool:Object.keys(socketMap), id: socket.id});
 		
 		socket.on('data', function (data) {
-			console.log(socket.id, data);
+			
+			console.log(socket.id, data, (Date.now()-oldDate));
+			oldDate = Date.now(); 
 		});
 		
 		socket.on('disconnect', function(){
@@ -21,7 +25,7 @@ var listen = function(io){
 			delete socketMap[socket.id];
 			socket.broadcast.emit('gone', {pool:Object.keys(socketMap), id: socket.id}); 
 			
-			console.log(socketMap);
+			//console.log(socketMap);
 		})
 	});
 }

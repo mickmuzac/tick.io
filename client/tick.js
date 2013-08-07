@@ -4,7 +4,7 @@ var $tickjs = new function(){
 	var master = false,
 	socket = {},
 	sessionPool = [],
-	keepLooping = true,
+	keepLooping = false,
 	dataBuffer = {},
 	isConnected = false,
 	timeoutHandle = 0,
@@ -23,7 +23,10 @@ var $tickjs = new function(){
 		socket.on('confirm', function (data) {
 			isConnected = true;
 			console.log(data);
-			socket.emit('data', { tick:self.time.ticks, data:self.data });
+			totalConnected = data.pool.length;
+			if(desiredConnections <= totalConnected){
+				self.start(0, startCallback);
+			}
 		});
 		
 		socket.on('new', function(data){
@@ -46,6 +49,12 @@ var $tickjs = new function(){
 	};
 
 	self.sync = function(){
+		
+		if(Math.abs(self.time.lastTime-Date.now()) > self.tickRate * 1.30){
+			console.log("Skipping syncronization, possible blur. Come again soon!");
+			self.time.lastTime = Date.now();
+			return;
+		}
 		
 		self.time.ticks++;
 		console.log("sync", Date.now()-self.time.lastTime);
@@ -96,24 +105,33 @@ var $tickjs = new function(){
 	self.stop = function(){
 		keepLooping = false;
 		window.clearTimeout(timeoutHandle);
+		window.clearInterval(timeoutHandle);
 	};
 	
 	self.every = function(rate){
+		
+		if(keepLooping){
+			return self;
+		}
 		
 		self.time.lastTime = Date.now();
 		keepLooping = true;
 		self.tickRate = rate ? rate : 100;
 
+		/*
 		(function loop(){
 			timeoutHandle = setTimeout(function(){
-			self.sync();
-			
-			if(keepLooping){
-				loop();
-			}
-
-		  }, rate);
+				self.sync();
+				
+				if(keepLooping){
+					loop();
+				}
+		   }, rate);
 		})();
+		*/
+		
+		//This is much more consistent than above, however, it it may timeout before function completion
+		timeoutHandle = window.setInterval(self.sync, self.tickRate);
 		
 		return self;
 	};
