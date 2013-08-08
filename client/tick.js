@@ -11,7 +11,7 @@ var $tickjs = new function(){
 	totalConnected = 0,
 	desiredConnections = 0,
 	desiredRate = 100,
-	userEventHandler = function(){};
+	userCallBack = function(){};
 	
 	//Number of milliseconds between ticks
 	self.tickRate = 10; 
@@ -20,7 +20,7 @@ var $tickjs = new function(){
 	self.connect = function(addr, cb){
 	
 		socket = io.connect(addr);
-		userEventHandler = cb ? cb : userEventHandler;
+		userCallBack = cb ? cb : userCallBack;
 		
 		//This socket's connection to server is complete
 		socket.on('confirm', function (data) {
@@ -43,7 +43,7 @@ var $tickjs = new function(){
 				self.start();
 			}
 			
-			userEventHandler('connect', data);
+			userCallBack('connect', data);
 		});		
 		
 		//A socket has disconnected from server
@@ -51,14 +51,14 @@ var $tickjs = new function(){
 			remove(data.pool, socket.socket.sessionid);
 			totalConnected = data.pool.length;
 			
-			userEventHandler('disconnect', data);
+			userCallBack('disconnect', data);
 		});	
 		
 		//Recieve data from other clients via server
 		socket.on('data', function(data){
 			//console.log('data', data);
 			remove(data.pool, socket.socket.sessionid);
-			userEventHandler('incoming', data);
+			userCallBack('incoming', data);
 		});
 		
 		return self;
@@ -72,6 +72,7 @@ var $tickjs = new function(){
 			return;
 		}
 		
+		userCallBack('tick');
 		self.time.ticks++;
 		//console.log("sync", Date.now()-self.time.lastTime);
 		self.time.lastTime = Date.now();
@@ -79,8 +80,6 @@ var $tickjs = new function(){
 		//Send data back up to the server
 		socket.emit('data', {tick:self.time.ticks, client_data:self.data});
 		dataBuffer = self.data;
-		
-		userEventHandler('tick');
 	};
 	
 	/*
@@ -102,7 +101,7 @@ var $tickjs = new function(){
 		//A falsy (0, undefined, etc.) or functional arg1 means start immediately. This case is last to allow the other args to be used.
 		//i.e: tick.start() or tick.start(false, 100)
 		if(!arg1 || (arg1 && isNaN(arg1))){
-			userEventHandler('start');
+			userCallBack('start');
 			self.every(desiredRate);
 			
 			return self;

@@ -2,28 +2,25 @@
 <html>
 <head>
 	<script type="text/javascript" src="/socket.io/socket.io.js"></script>
-	<script type="text/javascript" src="/tick.js"></script>
+	<script type="text/javascript" src="/client/tick.js"></script>
 	<script type="text/javascript" src="http://code.jquery.com/jquery-1.10.2.js"></script>
 	
 	<script>
-		var sync = function(e, data){
+		var sync = function(e, inObj){
 			
 			switch(e){	
 				case "connect":
 					tick.setData($('.input').val());
 					break;
 				
-				
 				case "incoming":
-				
-					$('.first').text(data.data);
-					console.log("incoming", data);
+					$('.first').text(inObj.data);
+					console.log("incoming", inObj);
 					break;
 				
 				case "tick":
-				
 					tick.setData($('.input').val());
-					//console.log("tick", data);
+					//console.log("tick", inObj);
 					break;
 			}
 		};
