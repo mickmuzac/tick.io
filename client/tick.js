@@ -1,7 +1,8 @@
 var $tickjs = new function(){
-
-	var self = this;
-	var master = false,
+	"use strict";
+	
+	var self = this,
+	master = false,
 	socket = {},
 	sessionPool = [],
 	keepLooping = false,
@@ -162,7 +163,7 @@ var $tickjs = new function(){
 		getTimeDiff: function(){
 			var temp = this.ticks - this.lastRead;
 			this.lastRead = this.ticks;
-			return (temp * self.tickRate) * .001;
+			return (temp * self.tickRate) * 0.001;
 		}		
 	
 	};
