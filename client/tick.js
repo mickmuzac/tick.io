@@ -62,6 +62,11 @@ var $tickjs = new function(){
 			userCallBack('incoming', data);
 		});
 		
+		//Basic latency testing
+		socket.on('ping', function(data){
+			socket.emit('ping', data);
+		});
+		
 		return self;
 	};
 

@@ -8,22 +8,21 @@
 	<link rel="stylesheet" href="/examples/styles/style.css">
 	
 	<script>
-		$(document).ready(function(){
-		
+		$(function(){
 			var location = {top:(500 * Math.random()) + "px", left:(500*Math.random())+"px"};
 			$('.me').css(location);
 			
 			var sync = function(e, inObj){
-				
 				switch(e){	
 					case "connect":
-						//Add socket identification code here; create draggable.
+						//Add socket identification code here; create new draggable.
+						//$(body).append( $('new class').draggable() );
+						console.log("New connection ", inObj);
 						break;
 				
 					case "incoming":
 						location.top = inObj.data.top + "px";
 						location.left = inObj.data.left + "px";
-						
 						$('.first').css(location);
 						break;
 					
@@ -33,16 +32,13 @@
 				}
 			};
 		
-			tick.connect('localhost', sync).start(1, 20);
+			tick.connect('localhost', sync).start(5, 80);
 			$('.me').draggable();
 		});
 	</script>
 </head>
 <body>
-	
-	<textarea class="input"></textarea>
 	<div class="me box">Me</div>
 	<div class="first box">Player 1</div>
-	
 </body>
 </html>
