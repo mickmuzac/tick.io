@@ -1,0 +1,12 @@
+.box{
+	width: 100px;
+	height: 100px;
+	border: 1px solid #aaa;
+	background: #fff;
+	position: absolute;
+}
+
+.first{
+	top: 200px;
+	left: 10px;
+}

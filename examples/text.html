@@ -9,10 +9,6 @@
 		var sync = function(e, inObj){
 			
 			switch(e){	
-				case "connect":
-					tick.setData($('.input').val());
-					break;
-				
 				case "incoming":
 					$('.first').text(inObj.data);
 					console.log("incoming", inObj);

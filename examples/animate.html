@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+	<script type="text/javascript" src="/client/tick.js"></script>
+	<script type="text/javascript" src="http://code.jquery.com/jquery-1.10.2.js"></script>
+	<script type="text/javascript" src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+	<link rel="stylesheet" href="/examples/styles/style.css">
+	
+	<script>
+		$(document).ready(function(){
+		
+			var location = {top:(500 * Math.random()) + "px", left:(500*Math.random())+"px"};
+			$('.me').css(location);
+			
+			var sync = function(e, inObj){
+				
+				switch(e){	
+					case "connect":
+						//Add socket identification code here; create draggable.
+						break;
+				
+					case "incoming":
+						location.top = inObj.data.top + "px";
+						location.left = inObj.data.left + "px";
+						
+						$('.first').css(location);
+						break;
+					
+					case "tick":
+						tick.setData($('.me').position());
+						break;
+				}
+			};
+		
+			tick.connect('localhost', sync).start(1, 20);
+			$('.me').draggable();
+		});
+	</script>
+</head>
+<body>
+	
+	<textarea class="input"></textarea>
+	<div class="me box">Me</div>
+	<div class="first box">Player 1</div>
+	
+</body>
+</html>

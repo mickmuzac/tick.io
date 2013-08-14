@@ -9,10 +9,10 @@ function handler (req, res) {
 	console.log(req.url);
 	
 
-  fs.readFile(__dirname + '/../client' + req.url, function (err, data) {
+  fs.readFile(__dirname + '/../' + req.url, function (err, data) {
     if (err) {
       res.writeHead(500);
-      return res.end('Error loading index.html');
+      return res.end('Error loading ' + req.url);
     }
 
     res.writeHead(200);
