@@ -26,7 +26,7 @@ var listen = function(io){
 		
 		socket.on('ping', function (data) {
 			socketMap[socket.id].latency = Date.now() - socketMap[socket.id].lastTime;
-			console.log("Latency is about: ", socketMap[socket.id].latency);
+			console.log("RTT is about " + socketMap[socket.id].latency + "ms");
 		});
 		
 		socket.on('disconnect', function(){

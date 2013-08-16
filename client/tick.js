@@ -33,6 +33,8 @@ var $tickjs = new function(){
 			if(desiredConnections <= totalConnected){
 				self.start();
 			}
+			
+			userCallBack('init', data);
 		});
 		
 		//A socket has connected to server
