@@ -25,10 +25,10 @@
 				On connect:
 					The connect event is fired whenever a new remote connection is established. 
 					inObj.origin is the socket ID of the remote connection.
-					Create a new box whenever a new remote connection is established
+					Here, we will create a new box whenever a new remote connection is established.
 				
 				On init:				
-					init is fired only when THIS client has successfully connected to the server. 
+					The init event is fired only when THIS client has successfully connected to the server. 
 					inObj.pool is a list of all remote socket ID's.
 					Other people may have connected before me, so we'll have to draw their boxes.
 			*/
@@ -42,6 +42,7 @@
 					case "init":
 						for(var i = 0; i < inObj.pool.length; i++){
 							$('body').append(createNewBox(inObj.pool[i]));
+							playerNum++;
 						}
 						break;
 					
@@ -53,6 +54,11 @@
 					
 					case "tick":
 						tick.setData($('.me').position());
+						break;		
+						
+					case "disconnect":
+						$('#' + inObj.origin).remove();
+						playerNum--;
 						break;
 				}
 			};
@@ -71,10 +77,11 @@
 			
 			/* 
 				Above is equivalent to:
+			*/	
 				
-				tick.connect(serverName, sync);
-				tick.start(2, 30);
-			*/
+			//tick.connect(serverName, sync);
+			//tick.start(2, 30);
+			
 		});
 	</script>
 </head>
