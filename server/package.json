@@ -12,6 +12,11 @@
 		{ "type" : "AGPL"
 		, "url" : "http://www.gnu.org/licenses/agpl.html"
 		}
-	]
-
+	],
+	
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/mickmuzac/tick.io.git"
+	}
+	
 }
