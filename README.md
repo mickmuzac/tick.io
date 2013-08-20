@@ -37,3 +37,33 @@ tick.listen(io);
 ```
 
 All done!
+
+##How to use
+You can feel free to check out the [examples directory](https://github.com/mickmuzac/tick.io/tree/master/examples) for
+working use-cases. 
+
+On the client side, a bare minimum tick.io app must connect to a server and should have a catch-all callback defined.
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+	<script type="text/javascript" src="/path/to/socket.io.js"></script>
+	<script type="text/javascript" src="/path/to/tick.js"></script>
+	<script type="text/javascript">
+		
+		var mySuperCallback = function(eventName, inObj){
+		
+			//Handle different events here. Both arguments are guaranteed to exist.
+			//Using a switch is recommended, however, you are free to control the flow
+			//of your app however you wish.
+			
+		};
+		
+		tick.connect("localhost", mySuperCallback).start();
+	</script>
+</head>
+<body>
+</body>
+</html>
+```
