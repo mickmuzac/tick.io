@@ -1,12 +1,17 @@
-var listen = function(io){
+var catchAllCb;
 
-	var self = this;
-	var socketMap = {};
+var on = function(event, cb){
+	io.sockets.on(event, cb);
+};
+
+var listen = function(io, cb){
+
+	var self = this, socketMap = {};
+	catchAllCb = cb ? cb : function(){};
 	
 	io.sockets.on('connection', function (socket) {
 		
 		console.log("New connection", socket.id);
-		
 		var oldDate = Date.now();
 		socketMap[socket.id] = {socket:socket, latency:0, lastTime:0};
 		
@@ -38,6 +43,6 @@ var listen = function(io){
 			//console.log(socketMap);
 		})
 	});
-}
+};
 
 exports.listen = listen;
