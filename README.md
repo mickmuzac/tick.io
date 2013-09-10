@@ -6,7 +6,7 @@ WARNING: DO NOT USE THIS MODULE. IT IS UNDER ACTIVE DEVELOPMENT AND IS NOT READY
 
 ##Installation
 ####Install Node module
-Use npm to install tick.io. Alternatively, you may download the script directly from [here](https://github.com/mickmuzac/tick.io/tree/master/server/lib).
+Use npm to install tick.io. Alternatively, you may download the server-side script directly from [here](https://github.com/mickmuzac/tick.io/tree/master/server/lib).
 ```
 npm install tick.io
 ```
@@ -24,6 +24,7 @@ tick.listen(io);
 ```
 
 ####Include client-side script
+Download the client-side script directly from [here](https://github.com/mickmuzac/tick.io/tree/master/client).
 ```html
 <!DOCTYPE html>
 <html>
@@ -58,6 +59,13 @@ On the client side, a bare minimum tick.io app must connect to a server and shou
 			//Using a switch is recommended, however, you are free to control the flow
 			//of your app however you wish.
 			
+			//For example, using if's:
+			if(eventName == "tick")
+				tick.setData(Date.now());
+				
+			else if(eventName == "incoming")
+				console.log("Data! ", inObj);
+			
 		};
 		
 		tick.connect("localhost", mySuperCallback).start();
@@ -70,24 +78,39 @@ On the client side, a bare minimum tick.io app must connect to a server and shou
 
 ##Events
 Note: In tick.io, an event is guaranteed to exist and is always a string.
-####init				
-The init event is fired locally only when a particular client has successfully connected to the server. 
+
 
 ####connect
-The connect event is fired whenever a new remote connection is established. 
-
-####incoming
-The incoming event is fired when data from a remote connection is delivered to a client.
+* description: The connect event is fired whenever a new remote connection is established. 
+* example: Client A connects, clients B and C will receive the connect event.
 
 ####disconnect
-The disconnect event is fired whenever the connection to a remote client is lost.
+* description: The disconnect event is fired whenever the connection to a remote client is lost.
+* example: Client A disconnects, clients B and C will receive the disconnect event.
 
+####incoming
+* description: The incoming event is fired when data from a remote connection is delivered to a client.
+* example: Client A sends data, clients B and C will receive the incoming event.
+
+####init				
+* description: The init event is fired locally only for the client that has successfully connected to the server. 
+* example: Client A connects, client A recieves the init event.
+
+####tick
+* description: The tick event is fired at specified time intervals. It enables a client to send data to remote clients at a predictable
+rate.
+* example: x milliseconds pass, clients A, B, and C will each receive their own respective tick events. These tick events 
+are not guaranteed to fire at the same time.
 
 ##Object Properties
 For the sake of clarity, `inObj` will refer to the object passed into your catch-all callback function as the second
 argument. However, it is important to note that the actual name of this object is arbitrary. The following properties
-are automatically accessible to your callback, although some of these properties may not always be set (see [Events](#events)).
+are automatically accessible by your callback, although some of these properties may not always be set (see [Events](#events)).
 
+####inObj.data
+* type: arbitrary
+* description: data is the information sent to this client by a remote client. Data can be anything and is
+not used by tick.io directly. As the developer, it is up to you to determine what data is and how you will process it.
 
 ####inObj.origin
 
@@ -100,12 +123,6 @@ are automatically accessible to your callback, although some of these properties
 * type: array
 * description: pool is the list of all remote socket ID's currently able to communicate with this client. 
 The length of pool can be used to determine the number of other clients connected to this client.
-
-
-####inObj.data
-* type: arbitrary
-* description: data is the information sent to this client by a another client. Data can be anything and is
-not used by tick.io directly. It is up to you to determine what data is and how you will process it.
 
 ####inObj.tick
 
