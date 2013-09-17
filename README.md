@@ -96,6 +96,11 @@ Note: In tick.io, an event is guaranteed to exist and is always a string.
 * description: The init event is fired locally only for the client that has successfully connected to the server. 
 * example: Client A connects, client A recieves the init event.
 
+####start				
+* description: The start event is fired after the desired number of remote connections (default: 0) is established. 
+* example: If the desired number of connections is 3 and clients A and B are connected, then clients A, B, and C will
+receive the start event after client C connects. If client D later connects, then only client D will receive the start event.
+
 ####tick
 * description: The tick event is fired at specified time intervals. It enables a client to send data to remote clients at a predictable
 rate.
