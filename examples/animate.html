@@ -12,7 +12,10 @@
 			//Initial location should be somewhat random to avoid overlapping with other boxes
 			var location = {top:(500*Math.random())+"px", left:(500*Math.random())+"px"},
 			playerNum = 2,
-			serverName = 'localhost';
+			connectObj = {
+				server: 'localhost',
+				room: 'CoolKidsRoom'
+			};
 			
 			$('.me').css(location);
 			$('.hiddenCopy').hide();
@@ -22,15 +25,8 @@
 				sync is our catch-all callback function used to handle all tick.io events. In this context, switches are useful.
 				inObj is guaranteed to exist, however its properties will differ depending on which event is actually fired.
 				
-				On connect:
-					The connect event is fired whenever a new remote connection is established. 
-					inObj.origin is the socket ID of the remote connection.
-					Here, we will create a new box whenever a new remote connection is established.
-				
-				On init:				
-					The init event is fired only when THIS client has successfully connected to the server. 
-					inObj.pool is a list of all remote socket ID's.
-					Other people may have connected before me, so we'll have to draw their boxes.
+				On connect: Create a new box whenever a new remote connection is established.
+				On init: Other people may have connected before me, so we'll have to draw their boxes.
 			*/
 			var sync = function(e, inObj){
 				switch(e){	
@@ -73,7 +69,7 @@
 				Connect to serverName using sync as our general callback function.
 				After connecting, call start and wait for at least 2 other connections before running (interval is set to 30ms).
 			*/
-			tick.connect(serverName, sync).start(2, 30);
+			tick.connect(connectObj, sync).start(2, 30);
 			
 			/* 
 				Above is equivalent to:

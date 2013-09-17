@@ -18,9 +18,9 @@ var $tickjs = new function(){
 	self.tickRate = 10; 
 	self.data = {};
 	
-	self.connect = function(addr, cb){
+	self.connect = function(connectObj, cb){
 	
-		socket = io.connect(addr);
+		socket = io.connect(connectObj.server ? connectObj.server : connectObj);
 		userCallBack = cb ? cb : userCallBack;
 		
 		//This socket's connection to server is complete
@@ -28,9 +28,7 @@ var $tickjs = new function(){
 			isConnected = true;
 			console.log(data);
 			
-			remove(data.pool, socket.socket.sessionid);
-			totalConnected = data.pool.length;
-			
+			totalConnected = remove(data.pool, socket.socket.sessionid);			
 			userCallBack('init', data);
 			if(desiredConnections <= totalConnected){
 				self.start();
@@ -40,8 +38,7 @@ var $tickjs = new function(){
 		//A socket has connected to server
 		socket.on('new', function(data){
 			
-			remove(data.pool, socket.socket.sessionid);
-			totalConnected = data.pool.length;
+			totalConnected = remove(data.pool, socket.socket.sessionid);
 			if(desiredConnections <= totalConnected){
 				self.start();
 			}
@@ -51,15 +48,12 @@ var $tickjs = new function(){
 		
 		//A socket has disconnected from server
 		socket.on('gone', function(data){
-			remove(data.pool, socket.socket.sessionid);
-			totalConnected = data.pool.length;
-			
+			totalConnected = remove(data.pool, socket.socket.sessionid);			
 			userCallBack('disconnect', data);
 		});	
 		
 		//Recieve data from other clients via server
 		socket.on('data', function(data){
-			//console.log('data', data);
 			remove(data.pool, socket.socket.sessionid);
 			userCallBack('incoming', data);
 		});
@@ -98,7 +92,7 @@ var $tickjs = new function(){
 		
 		//If arg1 is a number, it is the desired number of connections
 		if(!isNaN(arg1)){
-			desiredConnections = arg1;
+			desiredConnections = arg1 - 1;
 			console.log("Waiting for connections");
 		}
 		
@@ -201,6 +195,7 @@ var $tickjs = new function(){
 	
 	var remove = function(arr, element){
 		arr.splice(arr.indexOf(element), 1);
+		return arr.length;
 	};
 	
 	if (!Date.now) {  
