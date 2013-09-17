@@ -97,7 +97,8 @@ Note: In tick.io, an event is guaranteed to exist and is always a string.
 * example: Client A connects, client A recieves the init event.
 
 ####start				
-* description: The start event is fired after the desired number of remote connections (default: 0) is established. 
+* description: The start event is fired after the desired number of remote connections (default: 0) is established. The 
+start event signifies that tick.io will begin synchronization.
 * example: If the desired number of connections is 3 and clients A and B are connected, then clients A, B, and C will
 receive the start event after client C connects. If client D later connects, then only client D will receive the start event.
 
