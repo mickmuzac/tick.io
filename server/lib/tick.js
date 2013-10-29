@@ -12,12 +12,18 @@ var listen = function(io, cb){
 	io.sockets.on('connection', function (socket) {
 		
 		console.log("New connection", socket.id);
-		var oldDate = Date.now();
-		socketMap[socket.id] = {socket:socket, latency:0, lastTime:0};
+		var oldDate = Date.now(), thisSocketMap;
+		
+		socketMap[socket.id] = {socket:socket, latency:0, lastTime:0, dataCache: {pool:[], origin: "", tick: -1, client_data: null}};
+		thisSocketMap = socketMap[socket.id].dataCache;
+		
+		console.log("New connection", socketMap);
 		
 		//This sends entire socket pool. Own ID is filtered out on front end.
-		socket.broadcast.emit('new', {pool:Object.keys(socketMap), origin: socket.id});
-		socket.emit('confirm', {pool:Object.keys(socketMap), origin: socket.id});
+		thisSocketMap.pool = Object.keys(socketMap);
+		thisSocketMap.origin = socket.id;
+		socket.broadcast.emit('new', thisSocketMap);
+		socket.emit('confirm', thisSocketMap);
 		
 		socketMap[socket.id].lastTime = Date.now();
 		socket.emit('ping', 0);
@@ -26,7 +32,11 @@ var listen = function(io, cb){
 			console.log(socket.id, data, (Date.now()-oldDate));
 			oldDate = Date.now(); 
 			
-			socket.broadcast.emit('data', {pool:Object.keys(socketMap), origin: socket.id, tick: data.tick, data:data.client_data});
+			thisSocketMap.pool = Object.keys(socketMap);
+			thisSocketMap.origin = socket.id;			
+			thisSocketMap.tick = data.tick;
+			thisSocketMap.data = data.client_data;
+			socket.broadcast.emit('data', thisSocketMap);
 		});		
 		
 		socket.on('ping', function (data) {
@@ -36,12 +46,14 @@ var listen = function(io, cb){
 		
 		socket.on('disconnect', function(){
 			console.log(socket.id, 'disconnected');
-
-			delete socketMap[socket.id];
-			socket.broadcast.emit('gone', {pool:Object.keys(socketMap), origin: socket.id}); 
 			
-			//console.log(socketMap);
-		})
+			thisSocketMap.pool = Object.keys(socketMap);
+			thisSocketMap.origin = socket.id;	
+			
+			socket.broadcast.emit('gone', thisSocketMap); 
+			thisSocketMap = null;
+			delete socketMap[socket.id];
+		});
 	});
 };
 

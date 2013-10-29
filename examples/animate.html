@@ -17,9 +17,9 @@
 				room: 'CoolKidsRoom'
 			};
 			
-			$('.me').css(location);
+			$('#me').css(location);
 			$('.hiddenCopy').hide();
-			$('.me').draggable();
+			$('#me').draggable();
 			
 			/*
 				sync is our catch-all callback function used to handle all tick.io events. In this context, switches are useful.
@@ -49,7 +49,7 @@
 						break;
 					
 					case "tick":
-						tick.setData($('.me').position());
+						tick.setData($('#me').position());
 						break;		
 						
 					case "disconnect":
@@ -67,22 +67,22 @@
 			/*	
 				Wait, we're done already?
 				Connect to serverName using sync as our general callback function.
-				After connecting, call start and wait for at least 2 other connections before running (interval is set to 30ms).
+				After connecting, call start and wait for at least 2 connections before running (interval is set to 30ms).
 			*/
-			tick.connect(connectObj, sync).start(2, 30);
+			tick.connect(connectObj, sync).start(3, 30);
 			
 			/* 
 				Above is equivalent to:
 			*/	
 				
 			//tick.connect(serverName, sync);
-			//tick.start(2, 30);
+			//tick.start(3, 30);
 			
 		});
 	</script>
 </head>
 <body>
-	<div class="me box">Me</div>
+	<div id="me" class="box">Me</div>
 	<div class="hiddenCopy box"></div>
 </body>
 </html>
