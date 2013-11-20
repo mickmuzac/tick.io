@@ -1,6 +1,0 @@
-tick.io
-=======
-
-Realtime tick-based synchronization module for NodeJS
-
-WARNING: DO NOT USE THIS MODULE. IT IS UNDER ACTIVE DEVELOPMENT AND IS NOT READY FOR PRODUCTION OR DEVELOPMENT USE.
