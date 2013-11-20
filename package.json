@@ -4,7 +4,6 @@
 	"version": "0.0.1-beta",
 	"description": "Realtime tick-based synchronization module",
 	"dependencies": {
-		"debug": "*",
 		"socket.io": "0.9.x"
     },
 	"author":"Mick Muzac <mmuzac23@gmail.com>",

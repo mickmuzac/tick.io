@@ -18,9 +18,9 @@ var $tickjs = new function(){
 	self.tickRate = 10; 
 	self.data = {};
 	
-	self.connect = function(addr, cb){
+	self.connect = function(connectObj, cb){
 	
-		socket = io.connect(addr);
+		socket = io.connect(connectObj.server ? connectObj.server : connectObj);
 		userCallBack = cb ? cb : userCallBack;
 		
 		//This socket's connection to server is complete
@@ -28,20 +28,17 @@ var $tickjs = new function(){
 			isConnected = true;
 			console.log(data);
 			
-			remove(data.pool, socket.socket.sessionid);
-			totalConnected = data.pool.length;
+			totalConnected = remove(data.pool, socket.socket.sessionid);			
+			userCallBack('init', data);
 			if(desiredConnections <= totalConnected){
 				self.start();
 			}
-			
-			userCallBack('init', data);
 		});
 		
 		//A socket has connected to server
 		socket.on('new', function(data){
 			
-			remove(data.pool, socket.socket.sessionid);
-			totalConnected = data.pool.length;
+			totalConnected = remove(data.pool, socket.socket.sessionid);
 			if(desiredConnections <= totalConnected){
 				self.start();
 			}
@@ -51,15 +48,12 @@ var $tickjs = new function(){
 		
 		//A socket has disconnected from server
 		socket.on('gone', function(data){
-			remove(data.pool, socket.socket.sessionid);
-			totalConnected = data.pool.length;
-			
+			totalConnected = remove(data.pool, socket.socket.sessionid);			
 			userCallBack('disconnect', data);
 		});	
 		
 		//Recieve data from other clients via server
 		socket.on('data', function(data){
-			//console.log('data', data);
 			remove(data.pool, socket.socket.sessionid);
 			userCallBack('incoming', data);
 		});
@@ -98,24 +92,24 @@ var $tickjs = new function(){
 		
 		//If arg1 is a number, it is the desired number of connections
 		if(!isNaN(arg1)){
-			desiredConnections = arg1;
+			desiredConnections = arg1 - 1;
+			console.log("Waiting for connections");
 		}
 		
-		//If arg2 is a number it is the desiredRate and arg3 if it exists must be a callback
+		//If arg2 is a number, it is the desiredRate
 		if(!isNaN(arg2)){
 			desiredRate = arg2;
 		}
 
-		//A falsy (0, undefined, etc.) or functional arg1 means start immediately. This case is last to allow the other args to be used.
+		//A falsy (0, undefined, etc.) means start immediately. This case is last to allow arg2 to be used.
 		//i.e: tick.start() or tick.start(false, 100)
-		if(!arg1 || (arg1 && isNaN(arg1))){
+		if(!arg1){
 			userCallBack('start');
 			self.every(desiredRate);
 			
-			return self;
+			console.log("Starting");
 		}
 		
-		console.log("Waiting for connections");
 		return self;
 	};
 	
@@ -201,6 +195,7 @@ var $tickjs = new function(){
 	
 	var remove = function(arr, element){
 		arr.splice(arr.indexOf(element), 1);
+		return arr.length;
 	};
 	
 	if (!Date.now) {  
