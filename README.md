@@ -1,17 +1,14 @@
 #tick.io
-Tick.io is a realtime tick-based synchronization module for NodeJS built on top of socket.io.
+Tick.io is a realtime tick-based synchronization module for NodeJS built using vanilla socket.io.
 
 WARNING: DO NOT USE THIS MODULE. IT IS UNDER ACTIVE DEVELOPMENT AND IS NOT READY FOR PRODUCTION OR DEVELOPMENT USE.
 
 
 ##Installation
 ####Install Node module
-Use npm to install tick.io. Alternatively, you may download the server-side script directly from [here](https://github.com/mickmuzac/tick.io/tree/master/server/lib).
 ```
-npm install tick.io
+$ npm install tick.io
 ```
-Note: tick.io has only been tested with the `0.9.x` branch of socket.io.
-
 ####Listen on server
 Tick.io must be included after socket.io.
 ```js
@@ -24,23 +21,32 @@ tick.listen(io);
 ```
 
 ####Include client-side script
-Download the client-side script directly from [here](https://github.com/mickmuzac/tick.io/tree/master/client).
+The client side script does not need to be downloaded separately. It's included in the npm package and in all clones of this repository.
+
+Note: Your paths will most likely be different.
 ```html
 <!DOCTYPE html>
 <html>
 <head>
-	<script type="text/javascript" src="/path/to/socket.io.js"></script>
-	<script type="text/javascript" src="/path/to/tick.js"></script>
+	<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+	<script type="text/javascript" src="/client/tick.client.js"></script>
 </head>
 <body>
 </body>
 </html>
 ```
 
+####Start the server
+```
+$ node index.js
+```
+
+Navigate to `http://<server_ip>:3001/client/examples/text.html` on two different machines run text example.
+
 All done!
 
 ##How to use
-You can feel free to check out the [examples directory](https://github.com/mickmuzac/tick.io/tree/master/examples) for
+You can feel free to check out the [examples directory](https://github.com/mickmuzac/tick.io/tree/master/client/examples) for
 working use-cases. 
 
 On the client side, a bare minimum tick.io app must connect to a server and should have a catch-all callback defined.
