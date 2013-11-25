@@ -1,8 +1,9 @@
 #tick.io
-Tick.io is a realtime tick-based synchronization module for NodeJS built using vanilla socket.io.
+Tick.io is a realtime tick-based synchronization module for NodeJS built using socket.io.
+
+If you are browsing using npmjs.org, please visit the [Github repo here](https://github.com/mickmuzac/tick.io). Contributions are both welcomed and encouraged!
 
 WARNING: DO NOT USE THIS MODULE. IT IS UNDER ACTIVE DEVELOPMENT AND IS NOT READY FOR PRODUCTION OR DEVELOPMENT USE.
-
 
 ##Installation
 ####Install Node module
@@ -15,6 +16,10 @@ Tick.io must be included after socket.io.
 var app = require('http').createServer(handler),
     io = require('socket.io').listen(app, {log:false}),
 	tick = require('tick.io');
+
+/*
+	Server side routing logic goes here
+*/
 
 app.listen(3000);
 tick.listen(io);
