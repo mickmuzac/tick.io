@@ -63,6 +63,10 @@ On the client side, a bare minimum tick.io app must connect to a server and shou
 	<script type="text/javascript" src="/path/to/socket.io.js"></script>
 	<script type="text/javascript" src="/path/to/tick.js"></script>
 	<script type="text/javascript">
+		var connectObj = {
+			server: '<SERVER_IP>',
+			room: 'CoolKidsRoom'
+		};
 		
 		var mySuperCallback = function(eventName, inObj){
 		
@@ -79,7 +83,7 @@ On the client side, a bare minimum tick.io app must connect to a server and shou
 			
 		};
 		
-		tick.connect("localhost", mySuperCallback).start();
+		tick.connect(connectObj, mySuperCallback).start();
 	</script>
 </head>
 <body>
